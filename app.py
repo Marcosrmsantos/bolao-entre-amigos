@@ -22,7 +22,7 @@ with aba1:
         if len(palpite) == 3 and palpite.isdigit():
             try:
                 # 1. Lê os dados atuais da Página1
-                df_atual = conn.read(worksheet="Página1")
+                df_atual = conn.read(worksheet="Dados")
                 
                 # 2. Prepara o novo dado (usando 'Nomes' como está na sua planilha)
                 novo_dado = pd.DataFrame([{"Nomes": nome, "Palpite": palpite}])
@@ -50,7 +50,7 @@ with aba2:
     vencedor = st.text_input("Centena Sorteada", max_chars=3)
     
     try:
-        df = conn.read(worksheet="Página1")
+        df = conn.read(worksheet="Dados")
         if not df.empty:
             def destacar(row):
                 return ['background-color: gold; color: black'] * len(row) if row['Palpite'] == vencedor else [''] * len(row)
