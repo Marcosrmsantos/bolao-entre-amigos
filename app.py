@@ -2,15 +2,13 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
-# Configuração da página
+# 1. Configuração inicial
 st.set_page_config(page_title="Bolão entre Amigos", page_icon="🏆")
-
-# Conexão com a Planilha Google
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 st.title("🎟️ Bolão entre Amigos")
 
-# Criação das abas
+# 2. Criação das abas
 aba1, aba2, aba3 = st.tabs(["📌 Registrar", "📊 Ranking", "📲 Convite"])
 
 with aba1:
@@ -21,22 +19,14 @@ with aba1:
     if st.button("Confirmar Palpite"):
         if len(palpite) == 3 and palpite.isdigit():
             try:
-                # 1. Lê os dados atuais da Página1
+                # Lê a aba que você renomeou para 'Dados'
                 df_atual = conn.read(worksheet="Dados")
                 
-                # 2. Prepara o novo dado (usando 'Nomes' como está na sua planilha)
                 novo_dado = pd.DataFrame([{"Nomes": nome, "Palpite": palpite}])
-                
-                # 3. Junta o antigo com o novo
                 df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
                 
-                # 4. Escrita Direta (O disjuntor reforçado)
-                spreadsheet_id = st.secrets["connections"]["gsheets"]["spreadsheet"]
-                conn.client.update(
-                    spreadsheet=spreadsheet_id, 
-                    worksheet="Página1", 
-                    data=[df_final.columns.values.tolist()] + df_final.values.tolist()
-                )
+                # Salva na planilha
+                conn.update(worksheet="Dados", data=df_final)
                 
                 st.success(f"Sorte lançada, {nome}!")
                 st.balloons()
@@ -47,20 +37,12 @@ with aba1:
 
 with aba2:
     st.header("🏆 Ranking")
-    vencedor = st.text_input("Centena Sorteada", max_chars=3)
-    
     try:
         df = conn.read(worksheet="Dados")
-        if not df.empty:
-            def destacar(row):
-                return ['background-color: gold; color: black'] * len(row) if row['Palpite'] == vencedor else [''] * len(row)
-            st.table(df.style.apply(destarar, axis=1))
+        st.table(df)
     except:
-        st.info("Ainda não temos palpites registrados.")
+        st.info("Ainda não temos palpites.")
 
 with aba3:
     st.header("📨 Enviar Convite")
-    link_app = "https://bolao-entre-amigos.streamlit.app"
-    texto_convite = f"Participe do nosso Bolão! Acesse: {link_app}"
-    st.code(texto_convite)
-    st.write("Copie o texto acima e envie para seus amigos!")
+    st.code("Participe do nosso Bolão! Acesse: https://bolao-entre-amigos.streamlit.app")
