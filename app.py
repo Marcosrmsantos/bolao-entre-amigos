@@ -24,7 +24,7 @@ with aba1:
             novo_dado = pd.DataFrame([{"Nome": nome, "Palpite": palpite}])
             # Adiciona o novo palpite e envia de volta para o Google
             df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
-           conn.update(worksheet="Página1", data=df_final)
+            conn.update(worksheet="Página1", data=df_final)
             st.success(f"Sorte lançada, {nome}!")
         else:
             st.error("Insira exatamente 3 números!")
