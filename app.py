@@ -19,13 +19,17 @@ with aba1:
     
     if st.button("Confirmar Palpite"):
         if len(palpite) == 3 and palpite.isdigit():
-            # Lê os dados atuais da planilha
-            df_atual = conn.read()
-            novo_dado = pd.DataFrame([{"Nome": nome, "Palpite": palpite}])
-            # Adiciona o novo palpite e envia de volta para o Google
-            df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
-            conn.update(worksheet="Página1", data=df_final)
-            st.success(f"Sorte lançada, {nome}!")
+           # Lẽ os dados atuais
+        df_atual = conn.read(worksheet="Página1")
+        
+        # Cria a nova linha com o palpite
+        novo_dado = pd.DataFrame([{"Nomes": nome, "Palpite": palpite}])
+        
+        # Junta e salva usando o método direto da biblioteca gspread
+        df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
+        conn.client.update(spreadsheet=st.secrets["connections"]["gsheets"]["spreadsheet"], worksheet="Página1", data=[df_final.columns.values.tolist()] + df_final.values.tolist())
+        
+        st.success(f"Sorte lançada, {nome}!")
         else:
             st.error("Insira exatamente 3 números!")
 
