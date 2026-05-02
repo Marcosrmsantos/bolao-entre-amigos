@@ -2,13 +2,15 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
-# 1. Configuração inicial
+# Configuração da página
 st.set_page_config(page_title="Bolão entre Amigos", page_icon="🏆")
+
+# Conexão
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 st.title("🎟️ Bolão entre Amigos")
 
-# 2. Criação das abas
+# Abas
 aba1, aba2, aba3 = st.tabs(["📌 Registrar", "📊 Ranking", "📲 Convite"])
 
 with aba1:
@@ -19,13 +21,14 @@ with aba1:
     if st.button("Confirmar Palpite"):
         if len(palpite) == 3 and palpite.isdigit():
             try:
-                # Lê a aba que você renomeou para 'Dados'
-                df_atual = conn.read(worksheet="Dados")
+                # Lê os dados da aba 'Dados'
+                df_atual = conn.read(worksheet="Dados", ttl=0)
                 
+                # Novo palpite (ajustado para as colunas da sua planilha)
                 novo_dado = pd.DataFrame([{"Nomes": nome, "Palpite": palpite}])
-                df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
                 
-                # Salva na planilha
+                # Junta e salva
+                df_final = pd.concat([df_atual, novo_dado], ignore_index=True)
                 conn.update(worksheet="Dados", data=df_final)
                 
                 st.success(f"Sorte lançada, {nome}!")
@@ -38,11 +41,11 @@ with aba1:
 with aba2:
     st.header("🏆 Ranking")
     try:
-        df = conn.read(worksheet="Dados")
+        df = conn.read(worksheet="Dados", ttl=0)
         st.table(df)
     except:
-        st.info("Ainda não temos palpites.")
+        st.info("Aguardando registros...")
 
 with aba3:
     st.header("📨 Enviar Convite")
-    st.code("Participe do nosso Bolão! Acesse: https://bolao-entre-amigos.streamlit.app")
+    st.code("Participe do Bolão: https://bolao-entre-amigos.streamlit.app")
