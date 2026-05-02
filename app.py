@@ -1,4 +1,5 @@
 import streamlit as st
+link_app = "https://bolao-entre-amigos.streamlit.app"
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
